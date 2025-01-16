@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-
+	"github.com/joho/godotenv"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -29,8 +29,12 @@ type Student struct {
 var db *sql.DB
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	var err error
-	// Change database connection to default XAMPP MySQL
+	databaseString := os.
 	db, err = sql.Open("mysql", "root:@tcp(localhost:3306)/ktm_db")
 	if err != nil {
 		log.Fatal(err)
@@ -159,14 +163,14 @@ func updateStudent(w http.ResponseWriter, r *http.Request) {
 	if file, handler, err := r.FormFile("photo"); err == nil {
 		filename := fmt.Sprintf("%d_%s", time.Now().Unix(), handler.Filename)
 		newPhotoPath := filepath.Join("uploads", filename)
-		
+
 		f, err := os.OpenFile(newPhotoPath, os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		defer f.Close()
-		
+
 		if _, err := io.Copy(f, file); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
